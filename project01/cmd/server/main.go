@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
+	"os"
 )
 
 var db *sql.DB
@@ -12,8 +13,15 @@ var db *sql.DB
 var err error
 
 func main() {
-	db, err = sql.Open("pgx", "postgres://app:app@localhost:5433/appdb?sslmode=disable")
-	if err := db.Ping(); err != nil {
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		panic("DATABASE_URL is empty")
+	}
+	db, err = sql.Open("pgx", dsn)
+	if err != nil {
+		panic(err)
+	}
+	if err = db.Ping(); err != nil {
 		panic(err)
 	}
 
